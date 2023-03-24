@@ -1,4 +1,6 @@
+import 'package:firebase_app/helper_class/fcm_notification_helper.dart';
 import 'package:firebase_app/helper_class/firebase_auth_helper.dart';
+import 'package:firebase_app/helper_class/local_push_notification_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -9,7 +11,8 @@ class Login_page extends StatefulWidget {
   State<Login_page> createState() => _Login_pageState();
 }
 
-class _Login_pageState extends State<Login_page> {
+class _Login_pageState extends State<Login_page> with WidgetsBindingObserver {
+
   String? email;
   String? password;
 
@@ -20,14 +23,55 @@ class _Login_pageState extends State<Login_page> {
   TextEditingController passwordcontroller = TextEditingController();
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    LocalPushNotificationHelper.localPushNotificationHelper.initLocalPushNotification();
+    // WidgetsBinding.instance.addObserver(this);
+    FCMNotificationHelper.fcmNotificationHelper.getFCMToken();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // TODO: implement didChangeAppLifecycleState
+    super.didChangeAppLifecycleState(state);
+
+    print("===============================");
+    print(state);
+    print("===============================");
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+
       backgroundColor: Colors.grey[200],
       body: Container(
         alignment: Alignment.center,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            OutlinedButton(onPressed: () async {
+              await LocalPushNotificationHelper.localPushNotificationHelper.showSimpleNotification();
+            }, child: Text("showSimple notification")),
+            OutlinedButton(onPressed: () async {
+              await LocalPushNotificationHelper.localPushNotificationHelper.showScheduledNotification();
+            }, child: Text("showScheduled notification")),
+            OutlinedButton(onPressed: () async {
+              await LocalPushNotificationHelper.localPushNotificationHelper.showBigPictureNotification();
+
+            }, child: Text("showBigPicture notification")),
+            OutlinedButton(onPressed: () async {
+              await LocalPushNotificationHelper.localPushNotificationHelper.showMediaStyleNotification();
+            }, child: Text("showMediaStyle notification")),
+
+
             ElevatedButton(
               onPressed: () async {
                Map<String, dynamic> res = await FirebaseAuthHelper.firebaseAuthHelper
